@@ -15,9 +15,7 @@
 
 import logging
 from models.initializers import xavier_normal_, kaiming_normal_, constant_
-# import torch
-# import torch.nn as nn
-# import torch.nn.functional as F
+
 import paddle
 import paddle.nn as nn
 import paddle.nn.functional as f
