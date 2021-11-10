@@ -1,4 +1,4 @@
-# FixMatch
+# FixMatch-Paddle
 
 ## 简介
 
