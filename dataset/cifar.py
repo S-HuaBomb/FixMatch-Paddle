@@ -66,6 +66,11 @@ class CIFAR10SSL(datasets.Cifar10):
 
 
 def get_cifar10(args, data_file):
+    """
+    返回有/无 标签训练集和测试集 dataset
+    """
+
+    # 有标签训练数据采用常规弱增强
     transform_labeled = transforms.Compose([
         transforms.RandomHorizontalFlip(),
         transforms.RandomCrop(size=32,
@@ -74,25 +79,32 @@ def get_cifar10(args, data_file):
         transforms.ToTensor(),
         transforms.Normalize(mean=cifar10_mean, std=cifar10_std)
     ])
+    # 测试集转成 Tensor 以及标准归一化
     transform_val = transforms.Compose([
         transforms.ToTensor(),
         transforms.Normalize(mean=cifar10_mean, std=cifar10_std)
     ])
 
-    base_dataset = datasets.Cifar10(data_file=data_file,
-                                    mode='train',
-                                    download=True,
-                                    transform=transform_val)
+    base_dataset = datasets.Cifar10(
+        data_file=data_file,
+        mode='train',
+        download=True,
+        transform=transform_val)
 
-    train_labeled_idxs, train_unlabeled_idxs = x_u_split(args, np.asarray(base_dataset.data)[:, 1])  # 取标签列
+    # 划分指定数量的有/无标签训练集
+    train_labeled_idxs, train_unlabeled_idxs = x_u_split(
+        args, np.asarray(base_dataset.data)[:, 1])  # 取标签列
 
-    train_labeled_dataset = CIFAR10SSL(data_file, train_labeled_idxs,
-                                       mode='train',
-                                       transform=transform_labeled)
+    train_labeled_dataset = CIFAR10SSL(
+        data_file, train_labeled_idxs,
+        mode='train',
+        transform=transform_labeled)
 
-    train_unlabeled_dataset = CIFAR10SSL(data_file, train_unlabeled_idxs,
-                                         mode='train',
-                                         transform=TransformFixMatch(mean=cifar10_mean, std=cifar10_std))
+    train_unlabeled_dataset = CIFAR10SSL(
+        data_file, train_unlabeled_idxs,
+        mode='train',
+        # 无标签训练数据采用强增强
+        transform=TransformFixMatch(mean=cifar10_mean, std=cifar10_std))
 
     test_dataset = datasets.Cifar10(data_file=data_file,
                                     mode='test',
@@ -123,6 +135,9 @@ def x_u_split(args, labels):
 
 
 class TransformFixMatch(object):
+    """
+    调用 RandAugment 作为 Transform
+    """
     def __init__(self, mean, std):
         self.weak = transforms.Compose([
             transforms.RandomHorizontalFlip(),

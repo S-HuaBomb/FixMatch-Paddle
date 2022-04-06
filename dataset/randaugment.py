@@ -60,6 +60,9 @@ def Cutout(img, v, max_v, bias=0):
 
 
 def CutoutAbs(img, v, **kwarg):
+    """
+    基于 PIL 库的数据增强
+    """
     w, h = img.size
     x0 = np.random.uniform(0, w)
     y0 = np.random.uniform(0, h)
@@ -218,6 +221,9 @@ class RandAugmentPC(object):
 
 
 class RandAugmentMC(object):
+    """
+    RandAugment
+    """
     def __init__(self, n, m):
         assert n >= 1
         assert 1 <= m <= 10
